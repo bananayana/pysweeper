@@ -33,6 +33,16 @@ class ClickableLabel(QLabel):
         return True
 
 
+def lock_all_tiles(game, grid):
+    for x in range(0, game.w):
+        for y in range(0, game.h):
+            label_ = grid.itemAtPosition(y, x).widget()
+            label_.clickable = False
+            if game.won and game.mines[y, x] and not game.flags[y, x]:
+                game.flags[y, x] = 1
+                label_.update_label('flag')
+
+
 def main():
     game = Field(w=10, h=10, n_mines=20)
 
@@ -44,9 +54,9 @@ def main():
 
     def update_label_img(args):
         x, y, flag = args
-        if flag:
-            label_ = grid.itemAtPosition(y, x).widget()
-            if game.current_map[y, x] == -1 and not game.lost:
+        label_ = grid.itemAtPosition(y, x).widget()
+        if flag and not (game.lost or game.won):
+            if game.current_map[y, x] == -1:
                 if label_.clickable:
                     game.flags[y, x] = 1
                     label_.update_label('flag')
@@ -55,6 +65,11 @@ def main():
                     game.flags[y, x] = 0
                     label_.update_label('-1')
                     label_.clickable = True
+            return
+        elif flag:
+            return
+
+        if not label_.clickable:
             return
 
         reward = game.step(x, y)
@@ -66,14 +81,12 @@ def main():
         if reward == WIN_REWARD:
             label_ = button_grid.itemAtPosition(0, 0)
             label_.widget().setText('Congrats, get in there Lewis')
+            lock_all_tiles(game, grid)
 
         if reward == FAIL_REWARD:
             label_ = button_grid.itemAtPosition(0, 0)
             label_.widget().setText('Bono, my tyres are gone')
-            for x in range(0, game.w):
-                for y in range(0, game.h):
-                    label_ = grid.itemAtPosition(y, x).widget()
-                    label_.clickable = False
+            lock_all_tiles(game, grid)
 
     layout.addLayout(grid)
 

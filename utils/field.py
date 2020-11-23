@@ -17,6 +17,7 @@ class Field:
         self.flags = np.zeros((h, w))
         self.mines_placed = False
         self.lost = False
+        self.won = False
 
     def _get_exclusion_zone(self, center, zone_size=4):
         cx, cy = center
@@ -90,10 +91,13 @@ class Field:
                 return FAIL_REWARD
 
         reward = self.open_near(stepx, stepy)
-        if reward is not None:
+        if reward == FAIL_REWARD:
+            self.open_map()
+            self.lost = True
             return reward
 
         if np.all((self.current_map == -1) == self.mines.astype(bool)):
+            self.won = True
             return WIN_REWARD
         return STEP_REWARD
 
@@ -106,3 +110,4 @@ class Field:
         self.flags = np.zeros((self.h, self.w))
         self.mines_placed = False
         self.lost = False
+        self.won = False
