@@ -3,7 +3,7 @@ import sys
 from PySide2 import QtCore
 from PySide2.QtGui import QPixmap
 from PySide2.QtWidgets import QApplication, QWidget, QLabel, QGridLayout, \
-    QPushButton, QHBoxLayout
+    QPushButton
 
 from utils.field import Field, FAIL_REWARD, WIN_REWARD
 
@@ -17,20 +17,37 @@ class ClickableLabel(QLabel):
         self.x = x
         self.y = y
         self.clickable = True
+        self.val = val
         pixmap = QPixmap(f'data/imcrops/{val}.jpg')
         self.setPixmap(pixmap.scaled(QtCore.QSize(32, 32)))
         self.setObjectName(f'{x}_{y}')
+        self.setMinimumSize(32, 32)
 
     def mousePressEvent(self, event):
         flag = event.button() == QtCore.Qt.MouseButton.RightButton
         self.clicked.emit((self.x, self.y, flag))
 
     def update_label(self, val):
+        self.val = val
         pixmap = QPixmap(f'data/imcrops/{val}.jpg')
         self.setPixmap(pixmap.scaled(self.pixmap().size()))
 
     def hasScaledContents(self) -> bool:
         return True
+
+    def heightForWidth(self, width):
+        return width
+
+    def eventFilter(self, obj, event):
+        if (event.type() == QtCore.QEvent.Resize) and event.size().height() == event.size().width():
+            return super().eventFilter(obj, event)
+
+    def resizeEvent(self, event):
+        temp = max(event.size().height(), event.size().height())
+        pixmap = QPixmap(f'data/imcrops/{self.val}.jpg')
+        self.setMaximumSize(temp, temp)
+        self.setPixmap(pixmap.scaled(temp, temp, QtCore.Qt.KeepAspectRatio))
+        self.setMaximumSize(10000000, 10000000)
 
 
 def lock_all_tiles(game, grid):
