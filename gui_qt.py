@@ -48,7 +48,7 @@ def main():
 
     app = QApplication(sys.argv)
     win = QWidget()
-    layout = QHBoxLayout()
+    layout = QGridLayout()
     grid = QGridLayout()
     grid.setSpacing(0)
 
@@ -88,7 +88,7 @@ def main():
             label_.widget().setText('Bono, my tyres are gone')
             lock_all_tiles(game, grid)
 
-    layout.addLayout(grid)
+    layout.addLayout(grid, 0, 0)
 
     button_grid = QGridLayout()
     label = QLabel('')
@@ -113,7 +113,9 @@ def main():
     new_game_button.clicked.connect(new_game)
     button_grid.addWidget(label, 0, 0)
     button_grid.addWidget(new_game_button, 1, 0)
-    layout.addLayout(button_grid)
+    layout.addLayout(button_grid, 0, 1)
+    layout.setColumnStretch(0, 9)
+    layout.setColumnStretch(1, 1)
 
     new_game()
 
