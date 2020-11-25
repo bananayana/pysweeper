@@ -35,19 +35,15 @@ class ClickableLabel(QLabel):
     def hasScaledContents(self) -> bool:
         return True
 
-    def heightForWidth(self, width):
-        return width
-
-    def eventFilter(self, obj, event):
-        if (event.type() == QtCore.QEvent.Resize) and event.size().height() == event.size().width():
-            return super().eventFilter(obj, event)
-
     def resizeEvent(self, event):
-        temp = max(event.size().height(), event.size().height())
+        temp = max(event.size().height(), event.size().width())
         pixmap = QPixmap(f'data/imcrops/{self.val}.jpg')
         self.setMaximumSize(temp, temp)
+        # self.setMinimumSize(temp, temp)
+
         self.setPixmap(pixmap.scaled(temp, temp, QtCore.Qt.KeepAspectRatio))
         self.setMaximumSize(10000000, 10000000)
+        # self.setMinimumSize(1, 1)
 
 
 def lock_all_tiles(game, grid):
@@ -60,8 +56,39 @@ def lock_all_tiles(game, grid):
                 label_.update_label('flag')
 
 
+from PySide2.QtWidgets import QBoxLayout, QSpacerItem, QWidget
+
+
+class AspectRatioWidget(QWidget):
+    def __init__(self, widget):
+        super(AspectRatioWidget, self).__init__()
+        self.aspect_ratio = widget.size().width() / widget.size().height()
+        self.setLayout(QBoxLayout(QBoxLayout.LeftToRight, self))
+        #  add spacer, then widget, then spacer
+        self.layout().addItem(QSpacerItem(0, 0))
+        self.layout().addWidget(widget)
+        self.layout().addItem(QSpacerItem(0, 0))
+
+    def resizeEvent(self, e):
+        w = e.size().width()
+        h = e.size().height()
+
+        if w / h > self.aspect_ratio:  # too wide
+            self.layout().setDirection(QBoxLayout.RightToLeft)
+            widget_stretch = h * self.aspect_ratio
+            outer_stretch = (w - widget_stretch) / 2 * 1.5
+        else:  # too tall
+            self.layout().setDirection(QBoxLayout.BottomToTop)
+            widget_stretch = w / self.aspect_ratio
+            outer_stretch = (h - widget_stretch) / 2 + 0.5
+
+        self.layout().setStretch(0, outer_stretch)
+        self.layout().setStretch(1, widget_stretch)
+        self.layout().setStretch(2, outer_stretch)
+
+
 def main():
-    game = Field(w=10, h=10, n_mines=20)
+    game = Field(w=30, h=16, n_mines=20)
 
     app = QApplication(sys.argv)
     win = QWidget()
@@ -137,9 +164,10 @@ def main():
     new_game()
 
     win.setLayout(layout)
-    win.setWindowTitle("Sweep all that shet")
-    win.setGeometry(50, 50, 200, 200)
-    win.show()
+    win_parent = AspectRatioWidget(win)
+    win_parent.setWindowTitle("Sweep all that shet")
+    win_parent.setGeometry(50, 50, 200, 200)
+    win_parent.show()
     sys.exit(app.exec_())
 
 
