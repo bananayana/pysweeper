@@ -62,7 +62,7 @@ from PySide2.QtWidgets import QBoxLayout, QSpacerItem, QWidget
 class AspectRatioWidget(QWidget):
     def __init__(self, widget):
         super(AspectRatioWidget, self).__init__()
-        self.aspect_ratio = widget.size().width() / widget.size().height()
+        self.aspect_ratio = None
         self.setLayout(QBoxLayout(QBoxLayout.LeftToRight, self))
         #  add spacer, then widget, then spacer
         self.layout().addItem(QSpacerItem(0, 0))
@@ -73,14 +73,17 @@ class AspectRatioWidget(QWidget):
         w = e.size().width()
         h = e.size().height()
 
+        if self.aspect_ratio is None:
+            self.aspect_ratio = w / h
+
         if w / h > self.aspect_ratio:  # too wide
-            self.layout().setDirection(QBoxLayout.RightToLeft)
+            self.layout().setDirection(QBoxLayout.LeftToRight)
             widget_stretch = h * self.aspect_ratio
-            outer_stretch = (w - widget_stretch) / 2 * 1.5
+            outer_stretch = (w - widget_stretch) / 2
         else:  # too tall
             self.layout().setDirection(QBoxLayout.BottomToTop)
             widget_stretch = w / self.aspect_ratio
-            outer_stretch = (h - widget_stretch) / 2 + 0.5
+            outer_stretch = (h - widget_stretch) / 2
 
         self.layout().setStretch(0, outer_stretch)
         self.layout().setStretch(1, widget_stretch)
