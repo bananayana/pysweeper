@@ -19,9 +19,9 @@ class ClickableLabel(QLabel):
         self.clickable = True
         self.val = val
         pixmap = QPixmap(f'data/imcrops/{val}.jpg')
-        self.setPixmap(pixmap.scaled(QtCore.QSize(32, 32)))
+        self.setPixmap(pixmap.scaled(QtCore.QSize(64, 64)))
         self.setObjectName(f'{x}_{y}')
-        self.setMinimumSize(32, 32)
+        self.setMinimumSize(64, 64)
 
     def mousePressEvent(self, event):
         flag = event.button() == QtCore.Qt.MouseButton.RightButton
@@ -39,11 +39,9 @@ class ClickableLabel(QLabel):
         temp = max(event.size().height(), event.size().width())
         pixmap = QPixmap(f'data/imcrops/{self.val}.jpg')
         self.setMaximumSize(temp, temp)
-        # self.setMinimumSize(temp, temp)
 
         self.setPixmap(pixmap.scaled(temp, temp, QtCore.Qt.KeepAspectRatio))
         self.setMaximumSize(10000000, 10000000)
-        # self.setMinimumSize(1, 1)
 
 
 def lock_all_tiles(game, grid):
@@ -112,6 +110,8 @@ def main():
                     game.flags[y, x] = 0
                     label_.update_label('-1')
                     label_.clickable = True
+            label_ = button_grid.itemAtPosition(0, 0)
+            label_.widget().setText(f'Flags: {int(game.flags.sum())} / {game.n_mines}')
             return
         elif flag:
             return
@@ -127,18 +127,24 @@ def main():
                     label_.update_label(int(game.current_map[y, x]))
         if reward == WIN_REWARD:
             label_ = button_grid.itemAtPosition(0, 0)
+            label_.widget().setText(f'Flags: {game.n_mines} / {game.n_mines}')
+            label_ = button_grid.itemAtPosition(1, 0)
             label_.widget().setText('Congrats, get in there Lewis')
             lock_all_tiles(game, grid)
 
         if reward == FAIL_REWARD:
-            label_ = button_grid.itemAtPosition(0, 0)
+            label_ = button_grid.itemAtPosition(1, 0)
             label_.widget().setText('Bono, my tyres are gone')
             lock_all_tiles(game, grid)
 
     layout.addLayout(grid, 0, 0)
 
     button_grid = QGridLayout()
-    label = QLabel('')
+    button_grid.setColumnMinimumWidth(0, 300)
+    label = QLabel()
+    label.setAlignment(QtCore.Qt.AlignCenter)
+    flags_mines_number_label = QLabel()
+    flags_mines_number_label.setAlignment(QtCore.Qt.AlignHCenter)
     new_game_button = QPushButton('New Game')
 
     def new_game():
@@ -155,11 +161,14 @@ def main():
                     label.update_label(-1)
                     label.clickable = True
         label_ = button_grid.itemAtPosition(0, 0)
+        label_.widget().setText(f'Flags: 0 / {game.n_mines}')
+        label_ = button_grid.itemAtPosition(1, 0)
         label_.widget().setText(' ' * 28)
 
     new_game_button.clicked.connect(new_game)
-    button_grid.addWidget(label, 0, 0)
-    button_grid.addWidget(new_game_button, 1, 0)
+    button_grid.addWidget(flags_mines_number_label, 0, 0)
+    button_grid.addWidget(label, 1, 0)
+    button_grid.addWidget(new_game_button, 2, 0)
     layout.addLayout(button_grid, 0, 1)
     layout.setColumnStretch(0, 9)
     layout.setColumnStretch(1, 1)
