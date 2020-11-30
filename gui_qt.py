@@ -1,9 +1,9 @@
 import sys
 
-from PySide2 import QtCore
+from PySide2 import QtCore, QtGui
 from PySide2.QtGui import QPixmap
 from PySide2.QtWidgets import QApplication, QWidget, QLabel, QGridLayout, \
-    QPushButton, QBoxLayout, QSpacerItem
+    QPushButton, QBoxLayout, QSpacerItem, QLineEdit
 from utils.field import Field, FAIL_REWARD, WIN_REWARD
 
 
@@ -84,6 +84,19 @@ def lock_all_tiles(game, grid):
                 label_.update_label('flag')
 
 
+def reset_layout(self, layout):
+    try:
+        while layout.count():
+            item = layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+            else:
+                self.delete_layout(item.layout())
+    except Exception as e:
+        print(e)
+
+
 def main():
     game = Field(w=30, h=16, n_mines=20)
 
@@ -106,8 +119,7 @@ def main():
                     game.flags[y, x] = 0
                     label_.update_label('-1')
                     label_.clickable = True
-            label_ = button_grid.itemAtPosition(0, 0)
-            label_.widget().setText(f'Flags: {int(game.flags.sum())} / {game.n_mines}')
+            flags_mines_number_label.setText(f'Flags: {int(game.flags.sum())} / {game.n_mines}')
             return
         elif flag:
             return
@@ -122,29 +134,70 @@ def main():
                 if label_.clickable:
                     label_.update_label(int(game.current_map[y, x]))
         if reward == WIN_REWARD:
-            label_ = button_grid.itemAtPosition(0, 0)
-            label_.widget().setText(f'Flags: {game.n_mines} / {game.n_mines}')
-            label_ = button_grid.itemAtPosition(1, 0)
-            label_.widget().setText('Congrats, get in there Lewis')
+            flags_mines_number_label.setText(f'Flags: {game.n_mines} / {game.n_mines}')
+            final_msg_label.setText('Congrats, get in there Lewis')
             lock_all_tiles(game, grid)
 
         if reward == FAIL_REWARD:
-            label_ = button_grid.itemAtPosition(1, 0)
-            label_.widget().setText('Bono, my tyres are gone')
+            final_msg_label.setText('Bono, my tyres are gone')
             lock_all_tiles(game, grid)
 
     layout.addLayout(grid, 0, 0)
 
+    input_grid = QGridLayout()
+    width_label = QLabel()
+    width_label.setText('Width: ')
+    width_input = QLineEdit()
+    width_input.setText('30')
+    width_input.setValidator(QtGui.QIntValidator())
+    width_input.setMaxLength(2)
+
+    input_grid.addWidget(width_label, 0, 0)
+    input_grid.addWidget(width_input, 0, 1)
+
+    height_label = QLabel()
+    height_label.setText('Height: ')
+    height_input = QLineEdit()
+    height_input.setText('16')
+    height_input.setValidator(QtGui.QIntValidator())
+    height_input.setMaxLength(2)
+
+    input_grid.addWidget(height_label, 1, 0)
+    input_grid.addWidget(height_input, 1, 1)
+
+    n_mines_label = QLabel()
+    n_mines_label.setText('Mines: ')
+    n_mines_input = QLineEdit()
+    n_mines_input.setText('99')
+    n_mines_input.setValidator(QtGui.QIntValidator())
+    n_mines_input.setMaxLength(3)
+
+    input_grid.addWidget(n_mines_label, 2, 0)
+    input_grid.addWidget(n_mines_input, 2, 1)
+
     button_grid = QGridLayout()
     button_grid.setColumnMinimumWidth(0, 300)
-    label = QLabel()
-    label.setAlignment(QtCore.Qt.AlignCenter)
+    final_msg_label = QLabel()
+    final_msg_label.setAlignment(QtCore.Qt.AlignCenter)
     flags_mines_number_label = QLabel()
     flags_mines_number_label.setAlignment(QtCore.Qt.AlignHCenter)
     new_game_button = QPushButton('New Game')
 
     def new_game():
+        game.w = int(width_input.text())
+        game.h = int(height_input.text())
+        game.n_mines = int(n_mines_input.text())
+        game.size = game.w * game.h
         game.reset()
+
+        for i in reversed(range(grid.count())):
+            l = grid.takeAt(i)
+            wid = l.widget()
+            del wid
+            del l
+
+        if win_parent is not None:
+            win_parent.aspect_ratio = game.w / game.h
         for x in range(0, game.w):
             for y in range(0, game.h):
                 label = grid.itemAtPosition(y, x)
@@ -156,18 +209,19 @@ def main():
                     label = label.widget()
                     label.update_label(-1)
                     label.clickable = True
-        label_ = button_grid.itemAtPosition(0, 0)
-        label_.widget().setText(f'Flags: 0 / {game.n_mines}')
-        label_ = button_grid.itemAtPosition(1, 0)
-        label_.widget().setText(' ' * 28)
+        flags_mines_number_label.setText(f'Flags: 0 / {game.n_mines}')
+        final_msg_label.setText(' ' * 28)
 
     new_game_button.clicked.connect(new_game)
     button_grid.addWidget(flags_mines_number_label, 0, 0)
-    button_grid.addWidget(label, 1, 0)
-    button_grid.addWidget(new_game_button, 2, 0)
+    button_grid.addLayout(input_grid, 1, 0)
+    button_grid.addWidget(final_msg_label, 2, 0)
+    button_grid.addWidget(new_game_button, 3, 0)
     layout.addLayout(button_grid, 0, 1)
     layout.setColumnStretch(0, 9)
     layout.setColumnStretch(1, 1)
+
+    win_parent = None
 
     new_game()
 
