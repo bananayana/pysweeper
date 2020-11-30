@@ -3,8 +3,7 @@ import sys
 from PySide2 import QtCore
 from PySide2.QtGui import QPixmap
 from PySide2.QtWidgets import QApplication, QWidget, QLabel, QGridLayout, \
-    QPushButton
-
+    QPushButton, QBoxLayout, QSpacerItem
 from utils.field import Field, FAIL_REWARD, WIN_REWARD
 
 
@@ -44,19 +43,6 @@ class ClickableLabel(QLabel):
         self.setMaximumSize(10000000, 10000000)
 
 
-def lock_all_tiles(game, grid):
-    for x in range(0, game.w):
-        for y in range(0, game.h):
-            label_ = grid.itemAtPosition(y, x).widget()
-            label_.clickable = False
-            if game.won and game.mines[y, x] and not game.flags[y, x]:
-                game.flags[y, x] = 1
-                label_.update_label('flag')
-
-
-from PySide2.QtWidgets import QBoxLayout, QSpacerItem, QWidget
-
-
 class AspectRatioWidget(QWidget):
     def __init__(self, widget):
         super(AspectRatioWidget, self).__init__()
@@ -86,6 +72,16 @@ class AspectRatioWidget(QWidget):
         self.layout().setStretch(0, outer_stretch)
         self.layout().setStretch(1, widget_stretch)
         self.layout().setStretch(2, outer_stretch)
+
+
+def lock_all_tiles(game, grid):
+    for x in range(0, game.w):
+        for y in range(0, game.h):
+            label_ = grid.itemAtPosition(y, x).widget()
+            label_.clickable = False
+            if game.won and game.mines[y, x] and not game.flags[y, x]:
+                game.flags[y, x] = 1
+                label_.update_label('flag')
 
 
 def main():
