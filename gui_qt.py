@@ -142,8 +142,6 @@ def main():
             final_msg_label.setText('Bono, my tyres are gone')
             lock_all_tiles(game, grid)
 
-    layout.addLayout(grid, 0, 0)
-
     input_grid = QGridLayout()
     width_label = QLabel()
     width_label.setText('Width: ')
@@ -184,20 +182,29 @@ def main():
     new_game_button = QPushButton('New Game')
 
     def new_game():
+        old_game_w, old_game_h = game.w, game.h
         game.w = int(width_input.text())
         game.h = int(height_input.text())
         game.n_mines = int(n_mines_input.text())
         game.size = game.w * game.h
         game.reset()
 
-        for i in reversed(range(grid.count())):
-            l = grid.takeAt(i)
-            wid = l.widget()
-            del wid
-            del l
+        if not (old_game_h == game.h and old_game_w == game.w):
+            layout.removeItem(grid)
+            layout.update()
 
-        if win_parent is not None:
-            win_parent.aspect_ratio = game.w / game.h
+            for i in reversed(range(grid.count())):
+                grid.takeAt(i).widget().deleteLater()
+            grid.layout().update()
+
+            current_w, current_h = win_parent.size().width(), win_parent.size().height()
+            new_win_w, new_win_h = int(game.w * current_w / old_game_w), int(game.h * current_h / old_game_h)
+            win_parent.aspect_ratio = new_win_w / new_win_h
+            win_parent.resizeEvent(QtGui.QResizeEvent(QtCore.QSize(new_win_w, new_win_h),
+                                                      QtCore.QSize(current_w, current_h)))
+            win.adjustSize()
+            win_parent.adjustSize()
+
         for x in range(0, game.w):
             for y in range(0, game.h):
                 label = grid.itemAtPosition(y, x)
@@ -211,6 +218,7 @@ def main():
                     label.clickable = True
         flags_mines_number_label.setText(f'Flags: 0 / {game.n_mines}')
         final_msg_label.setText(' ' * 28)
+        layout.addLayout(grid, 0, 0)
 
     new_game_button.clicked.connect(new_game)
     button_grid.addWidget(flags_mines_number_label, 0, 0)
@@ -221,12 +229,11 @@ def main():
     layout.setColumnStretch(0, 9)
     layout.setColumnStretch(1, 1)
 
-    win_parent = None
+    win.setLayout(layout)
+    win_parent = AspectRatioWidget(win)
 
     new_game()
 
-    win.setLayout(layout)
-    win_parent = AspectRatioWidget(win)
     win_parent.setWindowTitle("Sweep all that shet")
     win_parent.setGeometry(50, 50, 200, 200)
     win_parent.show()
