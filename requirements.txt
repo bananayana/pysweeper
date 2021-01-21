@@ -1,4 +1,20 @@
-numpy==1.19.4
-PySide2==5.15.1
+# conda
+numpy==1.19.2
 
-gym==0.17.3
+#pip
+PySide2==5.15.1
+#pybind
+gym==0.10.11
+imageio
+PILLOW
+pyglet==1.3.2
+pyvirtualdisplay
+
+tensorflow==2.4.0
+tensorflow-probability==0.11.0
+
+dm-acme
+dm-reverb
+dm-acme[tf]
+dm-acme[envs]
+tf-agents[reverb]

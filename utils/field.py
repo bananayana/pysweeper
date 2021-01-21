@@ -1,9 +1,9 @@
 import numpy as np
 
-FAIL_REWARD = -100
-STEP_REWARD = 0
-REPEATED_STEP_REWARD = -5
-WIN_REWARD = 100
+FAIL_REWARD = -1
+STEP_REWARD = 0.5
+REPEATED_STEP_REWARD = -0.5
+WIN_REWARD = 1
 
 
 class Field:
@@ -83,6 +83,8 @@ class Field:
         if not self.mines_placed:
             self.place_mines((stepx, stepy))
 
+        repeated = self.current_map[stepy, stepx] != -1
+
         if self.current_map[stepy, stepx] == -1:
             if self.mines[stepy, stepx]:
                 # self.current_map[stepy, stepx] = FAIL_REWARD
@@ -94,12 +96,12 @@ class Field:
         if reward == FAIL_REWARD:
             self.open_map()
             self.lost = True
-            return reward
+            return FAIL_REWARD
 
         if np.all((self.current_map == -1) == self.mines.astype(bool)):
             self.won = True
             return WIN_REWARD
-        return STEP_REWARD
+        return STEP_REWARD if not repeated else REPEATED_STEP_REWARD
 
     def open_map(self):
         self.current_map[self.mines.astype(bool)] = FAIL_REWARD
