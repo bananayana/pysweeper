@@ -4,7 +4,7 @@ from PySide2 import QtCore, QtGui
 from PySide2.QtGui import QPixmap
 from PySide2.QtWidgets import QApplication, QWidget, QLabel, QGridLayout, \
     QPushButton, QBoxLayout, QSpacerItem, QLineEdit
-from utils.field import Field, FAIL_REWARD, WIN_REWARD
+from gym_sweeper.envs.field import Field, FAIL_REWARD, WIN_REWARD
 
 
 class ClickableLabel(QLabel):

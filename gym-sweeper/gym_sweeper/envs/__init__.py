@@ -1,0 +1,1 @@
+from gym_sweeper.envs.sweeper_env import MinerEnv

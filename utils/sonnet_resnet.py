@@ -8,12 +8,12 @@ class ResNetTorso(snt.Module):
 
     def __init__(
             self,
-            num_channels: Sequence[int] = (16, 32, 32),  # default to IMPALA resnet.
-            num_blocks: Sequence[int] = (2, 2, 2),  # default to IMPALA resnet.
+            num_channels: Sequence[int] = (64, 128, 256, 512),  # default to IMPALA resnet.
+            num_blocks: Sequence[int] = (3, 4, 6, 3),  # default to IMPALA resnet.
             num_output_hidden: Sequence[int] = (256,),  # default to IMPALA resnet.
             conv_shape: Union[int, Sequence[int]] = 3,
             conv_stride: Union[int, Sequence[int]] = 1,
-            pool_size: Union[int, Sequence[int]] = 3,
+            pool_size: Union[int, Sequence[int]] = 2,
             pool_stride: Union[int, Sequence[int]] = 2,
             data_format: str = 'NHWC',
             activation: Callable[[tf.Tensor], tf.Tensor] = tf.nn.relu,
@@ -38,12 +38,12 @@ class ResNetTorso(snt.Module):
                     data_format=data_format,
                     activation=activation))
 
-        # Create output layer.
-        out_layer = snt.nets.MLP(num_output_hidden, activation=activation)
+        # # Create output layer.
+        # out_layer = snt.nets.MLP(num_output_hidden, activation=activation)
 
         # Compose blocks and final layer.
         self._resnet = snt.Sequential(
-            blocks + [activation, snt.Flatten(), out_layer])
+            blocks + [snt.Flatten()])
 
     def __call__(self, inputs: tf.Tensor) -> tf.Tensor:
         """Evaluates the ResidualPixelCore."""
@@ -88,8 +88,8 @@ class ResidualBlockGroup(snt.Module):
                 stride=conv_stride,
                 padding='SAME',
                 data_format=data_format,
-                w_init=snt.initializers.VarianceScaling(scale=2),
-                b_init=snt.initializers.VarianceScaling(scale=2),
+                w_init=snt.initializers.VarianceScaling(scale=2, mode='fan_in', distribution='truncated_normal'),
+                b_init=snt.initializers.VarianceScaling(scale=2, mode='fan_in', distribution='truncated_normal'),
                 name=name)
 
         # Create a pooling layer.

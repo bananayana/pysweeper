@@ -1,5 +1,3 @@
-from typing import Tuple
-
 import PIL
 import gym
 import numpy as np
