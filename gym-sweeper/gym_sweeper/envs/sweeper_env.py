@@ -11,14 +11,21 @@ class MinerEnv(gym.Env):
 
     def __init__(self, w=8, h=8, n=10):
         self.action_space = spaces.Discrete(w * h)
-        self.observation_space = spaces.Box(low=-1., high=0.8, shape=(h, w, 1), dtype=float)
+        self.observation_space = spaces.Box(low=-1., high=0.8, shape=(1, h, w), dtype=float)
         self.game = Field(w=w, h=h, n_mines=n)
+        self._initial_step()
+
+    def _initial_step(self):
+        init_step = np.random.randint(low=0, high=(self.game.w * self.game.h) - 1)
+        init_step_y = init_step // self.game.w
+        init_step_x = init_step - init_step_y * self.game.w
+        self.game.step(init_step_x, init_step_y)
 
     def _current_map2observation(self):
         current_map = self.game.current_map.copy()
         current_map[current_map == -1] = -10
         current_map /= 10
-        current_map = current_map[:, :, None]
+        current_map = current_map[None, :, :]
         return current_map
 
     def step(self, action: int):
@@ -27,13 +34,14 @@ class MinerEnv(gym.Env):
         observation = self._current_map2observation()
         reward = self.game.step(x, y)
         done = reward == FAIL_REWARD
-        if done:
-            self.reset()
+        # if done:
+        #     self.reset()
         return observation, float(reward), done, {}
 
     def reset(self):
         self.game.reset()
-        return self.game.current_map.copy()[:, :, None]
+        self._initial_step()
+        return self.game.current_map.copy()[None, :, :]
 
     def render(self, mode='human', tile_size=64):
         dst = PIL.Image.new('RGB', (int(tile_size * self.game.w), int(tile_size * self.game.h)))
