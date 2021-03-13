@@ -1,5 +1,5 @@
 args:
-  logdir: ./logs/temp
+  logdir: ./logs/no_dupl_step
 #  expdir: src
 
   vis: 0

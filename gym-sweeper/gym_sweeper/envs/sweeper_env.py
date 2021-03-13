@@ -31,8 +31,11 @@ class MinerEnv(gym.Env):
     def step(self, action: int):
         y = action // self.game.w
         x = action - y * self.game.w
-        observation = self._current_map2observation()
+        if self.game.current_map[x, y] != -1:
+            observation = self._current_map2observation()
+            return observation, float(FAIL_REWARD), True, {}
         reward = self.game.step(x, y)
+        observation = self._current_map2observation()
         done = reward == FAIL_REWARD
         # if done:
         #     self.reset()
