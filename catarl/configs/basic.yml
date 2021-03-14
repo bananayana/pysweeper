@@ -1,6 +1,6 @@
 args:
   logdir: ./logs/no_dupl_step
-  resume: ./logs/no_dupl_step/20.pth
+#  resume: ./logs/no_dupl_step/20.pth
 #  expdir: src
 
   vis: 0
