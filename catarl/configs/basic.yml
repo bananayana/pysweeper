@@ -5,8 +5,8 @@ args:
 
   vis: 0
   infer: 0   #  change me
-  valid: 1   # change me
-  train: 8   #  change me
+  valid: 0   # change me
+  train: 1   #  change me
 
 db:
   db: RedisDB
@@ -103,10 +103,10 @@ sampler:
       probability: 1
       eps_init: 1.0
       eps_final: 0.01
-      annealing_steps: 10000000
+      annealing_steps: 1000000000
 #
-#    - exploration: Greedy
-#      probability: 0.1
+    - exploration: Greedy
+      probability: 0.1
 
   valid_seeds: [
     1608637542,
