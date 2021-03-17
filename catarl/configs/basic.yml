@@ -100,7 +100,7 @@ sampler:
 #      annealing_steps: 100000
 
     - exploration: EpsilonGreedy
-      probability: 1
+      probability: 0.9
       eps_init: 1.0
       eps_final: 0.01
       annealing_steps: 1000000000
