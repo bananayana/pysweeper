@@ -6,7 +6,7 @@ args:
   vis: 0
   infer: 0   #  change me
   valid: 0   # change me
-  train: 8   #  change me
+  train: 6   #  change me
 
 db:
   db: RedisDB
@@ -76,13 +76,13 @@ algorithm:
     clip_value: 5.0
 
 trainer:
-  batch_size: 200               # transitions
+  batch_size: 100               # transitions
   num_workers: 0
   epoch_len: 10000               # batches
 
   replay_buffer_size: 100000   # transitions
   replay_buffer_mode: numpy    # numpy or memmap
-  min_num_transitions: 100    # transitions
+  min_num_transitions: 50    # transitions
 
   save_period: 10               # epochs
   weights_sync_period: 1        # epochs
@@ -100,13 +100,13 @@ sampler:
 #      annealing_steps: 100000
 
     - exploration: EpsilonGreedy
-      probability: 0.9
+      probability: 0.99
       eps_init: 1.0
       eps_final: 0.01
       annealing_steps: 1000000000
 #
     - exploration: Greedy
-      probability: 0.1
+      probability: 0.01
 
   valid_seeds: [
     1608637542,
