@@ -1,5 +1,4 @@
-# pysweeper
-LD_LIBRARY_PATH=/home/alex/miniconda3/envs/acme_new/lib jupyter-notebook 
+Minesweeper on python with solver trained using reinforcement learning and UI on PyQt5.
 
-Minesweeper on python using PyQt5. 
-+ Reinforcement Learning 
+# in case of issues with GPU detection
+LD_LIBRARY_PATH=/home/alex/miniconda3/envs/acme_new/lib jupyter-notebook 
