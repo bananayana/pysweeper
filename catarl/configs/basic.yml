@@ -41,7 +41,7 @@ agents:
         dropout_rate: null
         activation: LeakyReLU
       main_net_params:
-        features: []
+        features: [64]
         use_bias: false
         normalization: LayerNorm
         activation: ReLU
